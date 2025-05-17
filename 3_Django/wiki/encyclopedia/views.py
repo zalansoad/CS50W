@@ -24,7 +24,7 @@ def search(request):
     q = request.GET.get("q")
     entries = [entry.casefold() for entry in util.list_entries()]
     if q.casefold() in entries:
-        return redirect(f"/{q}")
+        return redirect("entry", title=q)
 
 
 
