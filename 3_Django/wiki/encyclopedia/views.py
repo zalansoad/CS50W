@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import markdown2
 from . import util
 
@@ -20,6 +20,11 @@ def entry(request, title):
         "entry": entry
         })
     
+def search(request):
+    q = request.GET.get("q")
+    entries = [entry.casefold() for entry in util.list_entries()]
+    if q.casefold() in entries:
+        return redirect(f"/{q}")
 
 
 
