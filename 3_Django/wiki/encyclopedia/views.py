@@ -25,6 +25,15 @@ def search(request):
     entries = [entry.casefold() for entry in util.list_entries()]
     if q.casefold() in entries:
         return redirect("entry", title=q)
+    else:
+        results = []
+        for item in entries:
+            if q in item:
+                results.append(item)
+                            
+        return render(request, "encyclopedia/results.html", {
+        "results": results
+        })
 
 
 
