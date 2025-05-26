@@ -35,5 +35,20 @@ def search(request):
         "results": results
         })
 
+def new(request):
+    if request.method == "POST":
+        title = request.POST.get("new_title")
+        content = request.POST.get("new_entry")
+        try:
+            with open(f'/mnt/c/Users/zalan/Desktop/code/CS50W/3_Django/wiki/entries/{title}.md', "x") as file:
+                file.write(content)
+            return redirect("entry", title=title)
+        except FileExistsError:
+            return render(request, "encyclopedia/error.html",{
+            "entry": "The Page already exist"
+        })
+
+    return render(request, "encyclopedia/new.html")
+
 
 
