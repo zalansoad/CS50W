@@ -7,7 +7,7 @@
 {% block body %}
     <h1>Creating new entry</h1>
 
-    <div style="max-width: 1500px;">
+    <div style="max-width: 1300px;">
         <form action="{% url 'new' %}" method="post">
             {% csrf_token %}
             <h2>Title for the page</h2>

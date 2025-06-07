@@ -1,0 +1,25 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Editing entry
+{% endblock %}
+
+{% block body %}
+    <h1>Editing Entry</h1>
+
+    <div style="max-width: 1300px;">
+        <form action="{% url 'edit' %}" method="post">
+            {% csrf_token %}
+            <h2>Title for the page</h2>
+            <input class="search" type="text" name="new_title" value="{{ title }}">
+            <h2>Markdown content for the page</h2>
+            <textarea class="search" name="new_entry" rows="4" cols="50">{{ content }}</textarea>
+            <input type="submit" value="Save">
+        </form>
+    </div>
+
+    <div>
+
+    </div>
+
+{% endblock %}

@@ -17,7 +17,8 @@ def entry(request, title):
     else:
         entry = markdown2.markdown(MD_entry)
         return render(request, "encyclopedia/entry.html", {
-        "entry": entry
+        "entry": entry,
+        "title": title
         })
     
 def search(request):
@@ -39,16 +40,36 @@ def new(request):
     if request.method == "POST":
         title = request.POST.get("new_title")
         content = request.POST.get("new_entry")
-        try:
-            with open(f'/mnt/c/Users/zalan/Desktop/code/CS50W/3_Django/wiki/entries/{title}.md', "x") as file:
-                file.write(content)
-            return redirect("entry", title=title)
-        except FileExistsError:
+
+        
+        entries = [entry.casefold() for entry in util.list_entries()]
+        if title.casefold() in entries:
             return render(request, "encyclopedia/error.html",{
-            "entry": "The Page already exist"
+            "entry": "The Page already exists"
+            })
+        else:
+            util.save_entry(title, content)
+            return redirect("entry", title=title)
+    return render(request, "encyclopedia/new.html")
+
+def edit(request):
+    if request.method == "GET":
+        title = request.GET.get("title")
+        print(title)
+        content = util.get_entry(title)
+        return render(request, "encyclopedia/edit.html", {
+            "title": title,
+            "content": content
         })
 
-    return render(request, "encyclopedia/new.html")
+    if request.method == "POST":
+        title = request.POST.get("new_title")
+        content = request.POST.get("new_entry")
+        util.save_entry(title, content)
+        return redirect("entry", title=title)
+
+    
+
 
 
 
