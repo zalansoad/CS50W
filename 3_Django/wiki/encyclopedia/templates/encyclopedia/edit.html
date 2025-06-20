@@ -7,14 +7,16 @@
 {% block body %}
     <h1>Editing Entry</h1>
 
-    <div style="max-width: 1000px;">
+    <div>
         <form action="{% url 'edit' %}" method="post">
             {% csrf_token %}
             <h2>Title for the page</h2>
-            <input class="search" type="text" name="new_title" value="{{ title }}">
+            <input class="search" type="text" name="new_title" style="max-width: 90%" value="{{ title }}">
             <h2>Markdown content for the page</h2>
-            <textarea class="search" name="new_entry" rows="4" cols="50">{{ content }}</textarea>
-            <input type="submit" value="Save">
+            <textarea name="new_entry" >{{ content }}</textarea>
+            <div>
+                <input type="submit" value="Save">
+            </div>
         </form>
     </div>
 

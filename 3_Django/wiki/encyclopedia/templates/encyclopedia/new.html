@@ -7,14 +7,16 @@
 {% block body %}
     <h1>Creating new entry</h1>
 
-    <div style="width: 80vw; height: 10%;">
+    <div>
         <form action="{% url 'new' %}" method="post">
             {% csrf_token %}
             <h2>Title for the page</h2>
-            <input class="search" type="text" name="new_title" placeholder="Title">
+            <input class="search" type="text" name="new_title" placeholder="Title" style="max-width: 90%;">
             <h2>Markdown content for the page</h2>
-            <textarea class="search" name="new_entry" rows="4" cols="50" placeholder="Content of the new page goes here..."></textarea>
-            <input type="submit" value="Create">
+            <textarea name="new_entry" placeholder="Content of the new page goes here..."></textarea>
+            <div>
+                <input type="submit" value="Create">
+            </div>
         </form>
     </div>
 
