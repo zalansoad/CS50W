@@ -9,7 +9,9 @@ from datetime import datetime
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html", {
+        "listing": AuctionL.objects.all()
+    })
 
 
 def login_view(request):

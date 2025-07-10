@@ -15,13 +15,13 @@ class AuctionL(models.Model):
     title = models.CharField(max_length=64)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
     description = models.TextField()
-    bid_start = models.DecimalField(max_digits=20, decimal_places = 3)
+    bid_start = models.DecimalField(max_digits=20, decimal_places = 2)
     image_url = models.URLField()
     created_at = models. DateTimeField(auto_now_add=True)
 
 class Bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    bid = models.DecimalField(max_digits=20, decimal_places = 3)
+    bid = models.DecimalField(max_digits=20, decimal_places = 2)
     item = models.ForeignKey(AuctionL,on_delete=models.CASCADE)
 
 class Comment(models.Model):
