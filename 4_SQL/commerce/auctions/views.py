@@ -4,7 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Categories, AuctionL
+from datetime import datetime
 
 
 def index(request):
@@ -63,4 +64,19 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def create_listing(request):
-    return render( request, "auctions/create.html")
+ 
+    if request.method == "POST":
+        title = request.POST["title"]
+        category = Categories.objects.get(title=request.POST["category"])
+        bid_start = request.POST["bid_start"]
+        description = request.POST["description"]
+        image_url = request.POST["image_url"]
+        created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        new_listing = AuctionL(title=title, category=category, bid_start=bid_start, description=description, image_url=image_url, created_at=created_at)
+        new_listing.save()
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "auctions/create.html", {
+            "categories": Categories.objects.all()
+        })
