@@ -70,15 +70,26 @@ def create_listing(request):
     if request.method == "POST":
         title = request.POST["title"]
         category = Categories.objects.get(title=request.POST["category"])
-        bid_start = request.POST["bid_start"]
+        price = Deciaml(request.POST["price"])
         description = request.POST["description"]
         image_url = request.POST["image_url"]
-        created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        user = request.user
 
-        new_listing = AuctionL(title=title, category=category, bid_start=bid_start, description=description, image_url=image_url, created_at=created_at)
+        new_listing = AuctionL(title=title, category=category, price=price, description=description, image_url=image_url, creator=user)
         new_listing.save()
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/create.html", {
             "categories": Categories.objects.all()
         })
+
+def listing_page(request, item_id):
+
+    item = AuctionL.objects.get(id=item_id)
+    return render(request, "auctions/listing.html", {
+        "item": item
+    })
+
+    #if bid.user == request.user
+    #itt kiszedni a legmagasabb bidet es annak useret, ha ez ugyanaz mindt a request.user, akkor o nyert es kiirni
+    #bids = Bids.objects.filter(item=item)
