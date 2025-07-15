@@ -86,10 +86,29 @@ def create_listing(request):
 def listing_page(request, item_id):
 
     item = AuctionL.objects.get(id=item_id)
-    return render(request, "auctions/listing.html", {
-        "item": item
-    })
+    bids = Bids.objects.filter(item=item_id)
+    highest_bid = bids.order_by('-bid').first()
+    #checking if there are bids and determining the price to render
+    if bids.exists():
+        price = highest_bid.bid
+    else:
+        price = item.price
 
-    #if bid.user == request.user
-    #itt kiszedni a legmagasabb bidet es annak useret, ha ez ugyanaz mindt a request.user, akkor o nyert es kiirni
-    #bids = Bids.objects.filter(item=item)
+    # checking if the auction is closed and sending the winner data to render
+    hibid = None
+    if item.status == AuctionL.Status.CLOSED:
+        hibid = highest_bid
+
+    return render(request, "auctions/listing.html", {
+        "item": item,
+        "price": price,
+        "hibid": hibid
+        #ezt templatben is javitani
+    })
+    
+
+def watchlist(request, item_id):
+    pass
+    #path plusy form es post gomb
+
+

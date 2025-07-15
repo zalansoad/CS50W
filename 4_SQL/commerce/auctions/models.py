@@ -24,7 +24,7 @@ class AuctionL(models.Model):
         CLOSED = 'closed', 'Closed'
         PENDING = 'pending', 'Pending'
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
-    #highest bidder, none by default
+    watchlist = models.ManyToManyField(User, related_name="watchlist", blank=True)
     
 
 class Bids(models.Model):
