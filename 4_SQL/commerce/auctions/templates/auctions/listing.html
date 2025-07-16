@@ -3,9 +3,22 @@
 {% block body %}
     <h3>{{ item.title }}</h3>
     <p>{{ item.description }}</p>
-    <h5>{{ item.price }}$</h5>
+    <h5>{{ item.current_price }}$</h5>
     <h6>Auction Status: {{ item.status }}</h6>
     <h6>Listed by: {{ item.creator }}</h6>
     <h6>Category: {{ item.category }}</h6>
+    <h6> Test highest :{{ item.highest_bid }} </h6>
     <img src="{{ item.image_url }}" alt="{{ item.title }}" style="width:300px;">
+    <form action="{% url 'watchlist' item.id %}" method="post">
+        {%csrf_token%}
+        <div>
+            {% if user.is_authenticated %}
+                {% if user in item.watchlist.all %}
+                    <button type="submit">Remove from Watchlist</button>
+                {% else %}
+                    <button type="submit">Add to Watchlist</button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </form>
 {% endblock %}

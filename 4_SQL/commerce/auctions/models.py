@@ -19,18 +19,28 @@ class AuctionL(models.Model):
     image_url = models.URLField()
     created_at = models. DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    
     class Status(models.TextChoices):
         ACTIVE = 'active', 'Active'
         CLOSED = 'closed', 'Closed'
         PENDING = 'pending', 'Pending'
+
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     watchlist = models.ManyToManyField(User, related_name="watchlist", blank=True)
     
+    def current_price(self):
+        highest_bid = self.bids.order_by('-bid').first()
+        if highest_bid:
+            return highest_bid.bid
+        return self.price
 
+    def highest_bid(self):
+        return self.bids.order_by('-bid').first()
+    
 class Bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     bid = models.DecimalField(max_digits=20, decimal_places = 2)
-    item = models.ForeignKey(AuctionL,on_delete=models.CASCADE)
+    item = models.ForeignKey(AuctionL,on_delete=models.CASCADE, related_name='bids')
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

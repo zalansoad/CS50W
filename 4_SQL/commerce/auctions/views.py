@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Categories, AuctionL
+from .models import User, Categories, AuctionL, Bids
 from datetime import datetime
 
 
@@ -86,29 +86,27 @@ def create_listing(request):
 def listing_page(request, item_id):
 
     item = AuctionL.objects.get(id=item_id)
-    bids = Bids.objects.filter(item=item_id)
-    highest_bid = bids.order_by('-bid').first()
-    #checking if there are bids and determining the price to render
-    if bids.exists():
-        price = highest_bid.bid
-    else:
-        price = item.price
+    bids = item.bids.all()
+    highest_bid = item.highest_bid()
 
     # checking if the auction is closed and sending the winner data to render
-    hibid = None
+    winbid = None
     if item.status == AuctionL.Status.CLOSED:
-        hibid = highest_bid
+        winbid = highest_bid
 
     return render(request, "auctions/listing.html", {
         "item": item,
-        "price": price,
-        "hibid": hibid
-        #ezt templatben is javitani
+        "winbid": winbid
     })
     
 
 def watchlist(request, item_id):
-    pass
-    #path plusy form es post gomb
+    item = AuctionL.objects.get(id=item_id)
+    if item.watchlist.filter(id=request.user.id).exists():
+        item.watchlist.remove(request.user)
+    else:
+        item.watchlist.add(request.user)
+
+    return HttpResponseRedirect(reverse('listing_page', args=[item_id]))
 
 
