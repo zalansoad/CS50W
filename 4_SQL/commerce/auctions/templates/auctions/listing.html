@@ -7,7 +7,7 @@
     <h6>Auction Status: {{ item.status }}</h6>
     <h6>Listed by: {{ item.creator }}</h6>
     <h6>Category: {{ item.category }}</h6>
-    <h6> Test highest :{{ item.highest_bid }} </h6>
+    <h6> Test highest :{{ item.highest_bid.user }} </h6>
     <img src="{{ item.image_url }}" alt="{{ item.title }}" style="width:300px;">
     <form action="{% url 'watchlist' item.id %}" method="post">
         {%csrf_token%}
@@ -21,4 +21,36 @@
             {% endif %}
         </div>
     </form>
+    {% if error %}
+        <h6>ERROR: {{ error }}</h6>
+    {% endif %}
+    <form action="{% url 'listing_page' item.id %}" method="post">
+        {%csrf_token%}
+        <div>
+            {% if user.is_authenticated %}
+                    <input type="number" name="new_bid">
+                    <input type="submit" value="Submit">bid</input>
+            {% endif %}
+        </div>
+    </form>
+    <h3>Comments</h3>
+    <form action="{% url 'listing_page' item.id %}" method="post">
+    <div>
+        {%csrf_token%}
+        {% if user.is_authenticated %}
+        <h6>Add new comment</h6>
+        <textarea name="comment" placeholder="Your comment goes here"></textarea>
+        <input type="submit" value="Submit">
+        {% endif %}
+    </div>
+    </form>
+    <div>
+        {% for comment in comments %}
+        <div>
+            <P>{{comment.user}}({{comment.created_at}})</P>
+            <p>{{comment.comment}}</p>
+        </div>    
+        {% endfor %}
+    </div>
+    
 {% endblock %}

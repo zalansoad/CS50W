@@ -4,8 +4,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Categories, AuctionL, Bids
+from .models import User, Categories, AuctionL, Bids, Comment
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 
 
 def index(request):
@@ -86,6 +87,32 @@ def create_listing(request):
 def listing_page(request, item_id):
 
     item = AuctionL.objects.get(id=item_id)
+    comments = Comment.objects.filter(item=item)
+
+    if request.method == "POST":
+        
+        if "new_bid" in request.POST:
+            new_bid = request.POST["new_bid"]
+            error_msg = "The bid must be at least as large as the starting bid, and must be greater than any other bids that have been placed (if any)."
+            try:
+                new_bid = Decimal(new_bid)
+            except (InvalidOperation, ValueError):
+                return render_listing(request, item, comments, error_msg)
+            if new_bid <= item.current_price():
+                return render_listing(request, item, comments, error_msg)
+            else:
+                Bids.objects.create(user=request.user, bid=new_bid, item=item)
+                return HttpResponseRedirect(reverse('listing_page', args=[item_id]))
+        
+        elif "comment" in request.POST:
+            comment = request.POST["comment"]
+            Comment.objects.create(user=request.user, comment=comment, item=item)
+            return render_listing(request, item, comments)
+    else:
+        return render_listing(request, item, comments)
+        
+        
+def render_listing(request, item, comment=None, error_msg=None):
     bids = item.bids.all()
     highest_bid = item.highest_bid()
 
@@ -96,17 +123,24 @@ def listing_page(request, item_id):
 
     return render(request, "auctions/listing.html", {
         "item": item,
-        "winbid": winbid
+        "winbid": winbid,
+        "comments":comment,
+        "error": error_msg
     })
+
     
 
 def watchlist(request, item_id):
-    item = AuctionL.objects.get(id=item_id)
-    if item.watchlist.filter(id=request.user.id).exists():
-        item.watchlist.remove(request.user)
-    else:
-        item.watchlist.add(request.user)
+    if request.method == "POST":
+        item = AuctionL.objects.get(id=item_id)
+        if item.watchlist.filter(id=request.user.id).exists():
+            item.watchlist.remove(request.user)
+        else:
+            item.watchlist.add(request.user)
 
-    return HttpResponseRedirect(reverse('listing_page', args=[item_id]))
+        return HttpResponseRedirect(reverse('listing_page', args=[item_id]))
+
+
+
 
 
