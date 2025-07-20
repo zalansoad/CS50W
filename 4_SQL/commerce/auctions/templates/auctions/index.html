@@ -5,7 +5,6 @@
 
     {% for item in listing %}
     <div>
-        
         <a href="{% url 'listing_page' item.id %}"><h3>{{ item.title }}</h3></a>
         <p>{{ item.description }}</p>
         <h5>{{ item.current_price }}$</h5>

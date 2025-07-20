@@ -7,6 +7,7 @@ from django.urls import reverse
 from .models import User, Categories, AuctionL, Bids, Comment
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -66,6 +67,7 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+@login_required(login_url='/login')
 def create_listing(request):
  
     if request.method == "POST":
@@ -90,8 +92,12 @@ def listing_page(request, item_id):
     comments = Comment.objects.filter(item=item)
 
     if request.method == "POST":
-        
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("login"))
+
         if "new_bid" in request.POST:
+            if item.status == AuctionL.Status.CLOSED:
+                return render_listing(request, item, comments, error_msg="The auction is closed.")
             new_bid = request.POST["new_bid"]
             error_msg = "The bid must be at least as large as the starting bid, and must be greater than any other bids that have been placed (if any)."
             try:
@@ -107,6 +113,12 @@ def listing_page(request, item_id):
         elif "comment" in request.POST:
             comment = request.POST["comment"]
             Comment.objects.create(user=request.user, comment=comment, item=item)
+            return render_listing(request, item, comments)
+        elif "close_auction" in request.POST:
+            if item.status == AuctionL.Status.CLOSED:
+                return render_listing(request, item, comments, error_msg="The auction is closed already")
+            item.status = AuctionL.Status.CLOSED
+            item.save()
             return render_listing(request, item, comments)
     else:
         return render_listing(request, item, comments)
@@ -129,7 +141,7 @@ def render_listing(request, item, comment=None, error_msg=None):
     })
 
     
-
+@login_required(login_url='/login')
 def watchlist(request, item_id):
     if request.method == "POST":
         item = AuctionL.objects.get(id=item_id)
@@ -139,6 +151,27 @@ def watchlist(request, item_id):
             item.watchlist.add(request.user)
 
         return HttpResponseRedirect(reverse('listing_page', args=[item_id]))
+
+@login_required(login_url='/login')
+def watchlist_view(request):
+    watchlist = request.user.watchlist.all()
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": watchlist
+    })
+
+def categories_list(request):
+    return render(request, "auctions/categories_list.html", {
+        "categories": Categories.objects.all()
+    })
+
+def category(request, category_title):
+        items = AuctionL.objects.filter(category__title=category_title)
+        return render(request, "auctions/category.html", {
+            "items": items
+
+    })
+
+
 
 
 

@@ -1,0 +1,16 @@
+{% extends "auctions/layout.html" %}
+ 
+{% block body %}
+{% if items %}
+    {% for item in items %}
+        <div>
+            <a href="{% url 'listing_page' item.id %}"><h3>{{ item.title }}</h3></a>
+            <p>{{ item.description }}</p>
+            <h5>{{ item.current_price }}$</h5>
+            <img src="{{ item.image_url }}" alt="{{ item.title }}" style="width:300px;">
+        </div>
+    {% endfor %}
+{% else %}
+<p> No items under this category yet </p>
+{% endif %}
+{% endblock %}

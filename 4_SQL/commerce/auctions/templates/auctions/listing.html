@@ -8,31 +8,52 @@
     <h6>Listed by: {{ item.creator }}</h6>
     <h6>Category: {{ item.category }}</h6>
     <h6> Test highest :{{ item.highest_bid.user }} </h6>
-    <img src="{{ item.image_url }}" alt="{{ item.title }}" style="width:300px;">
-    <form action="{% url 'watchlist' item.id %}" method="post">
-        {%csrf_token%}
-        <div>
-            {% if user.is_authenticated %}
-                {% if user in item.watchlist.all %}
-                    <button type="submit">Remove from Watchlist</button>
+    <div>
+        {% if user.is_authenticated %}
+            {% if user == item.creator %}
+            <form action="{% url 'listing_page' item.id %}" method="post">
+                {%csrf_token%}
+                {% if item.status == 'active' %}
+                    <input type="submit" name="close_auction" value="Close Auction">
                 {% else %}
-                    <button type="submit">Add to Watchlist</button>
+                    <input type="submit" name="close_auction" value="Close Auction" disabled>
                 {% endif %}
+            </form>
             {% endif %}
-        </div>
-    </form>
+        {% endif %}
+    </div>
+    <img src="{{ item.image_url }}" alt="{{ item.title }}" style="width:300px;">
     {% if error %}
         <h6>ERROR: {{ error }}</h6>
     {% endif %}
-    <form action="{% url 'listing_page' item.id %}" method="post">
-        {%csrf_token%}
-        <div>
-            {% if user.is_authenticated %}
-                    <input type="number" name="new_bid">
-                    <input type="submit" value="Submit">bid</input>
-            {% endif %}
-        </div>
-    </form>
+    {% if item.status == 'active' %}
+        <form action="{% url 'watchlist' item.id %}" method="post">
+            {%csrf_token%}
+            <div>
+                {% if user.is_authenticated %}
+                    {% if user in item.watchlist.all %}
+                        <button type="submit">Remove from Watchlist</button>
+                    {% else %}
+                        <button type="submit">Add to Watchlist</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </form>
+
+        <form action="{% url 'listing_page' item.id %}" method="post">
+            {%csrf_token%}
+            <div>
+                {% if user.is_authenticated %}
+                        <input type="number" name="new_bid">
+                        <input type="submit" value="Submit">bid</input>
+                {% endif %}
+            </div>
+        </form>
+    {% else %}
+        {% if user == item.highest_bid.user %}
+        <h1> You Won the auction </h1>
+        {% endif %}
+    {% endif %}
     <h3>Comments</h3>
     <form action="{% url 'listing_page' item.id %}" method="post">
     <div>
