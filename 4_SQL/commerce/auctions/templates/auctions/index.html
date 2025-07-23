@@ -1,14 +1,24 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+    
+<div class="container text-center">
     <h2>Active Listings</h2>
-
-    {% for item in listing %}
-    <div>
-        <a href="{% url 'listing_page' item.id %}"><h3>{{ item.title }}</h3></a>
-        <p>{{ item.description }}</p>
-        <h5>{{ item.current_price }}$</h5>
-        <img src="{{ item.image_url }}" alt="{{ item.title }}" style="width:300px;">
+    <div class="row justify-content-center">
+        {% for item in listing %}
+            {% if item.status == 'active' %}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4">
+                <div class="card" style="width: 18rem;">
+                    <a href="{% url 'listing_page' item.id %}"><img src="{{ item.image_url }}" alt="{{ item.title }}" class="card-img-top"></a>
+                    <div class="card-body">
+                        <a href="{% url 'listing_page' item.id %}"><h5 class="card-title">{{ item.title }}</h5></a>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">{{ item.current_price }}$</h6>
+                        <p class="card-text text-truncate">{{ item.description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
     </div>
-    {% endfor %}
+</div>
 {% endblock %}

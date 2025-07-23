@@ -23,7 +23,6 @@ class AuctionL(models.Model):
     class Status(models.TextChoices):
         ACTIVE = 'active', 'Active'
         CLOSED = 'closed', 'Closed'
-        PENDING = 'pending', 'Pending'
 
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     watchlist = models.ManyToManyField(User, related_name="watchlist", blank=True)

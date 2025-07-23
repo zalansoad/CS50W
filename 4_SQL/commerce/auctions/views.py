@@ -69,21 +69,51 @@ def register(request):
 
 @login_required(login_url='/login')
 def create_listing(request):
- 
+    #check submitted values
     if request.method == "POST":
-        title = request.POST["title"]
-        category = Categories.objects.get(title=request.POST["category"])
-        price = Deciaml(request.POST["price"])
-        description = request.POST["description"]
-        image_url = request.POST["image_url"]
-        user = request.user
+
+        if request.POST["title"] == "":
+           return render_create_listing(request, "Providing title is mandatory.")
+        else:
+            title = request.POST["title"]
+            print(title)
+
+        
+        if not request.POST.get("category"):
+            return render_create_listing(request, "Providing category is mandatory.")
+        else:
+            category = Categories.objects.get(title=request.POST["category"])
+
+        if not request.POST.get("bid_start"):
+            return render_create_listing(request, "Provide a valid price.")
+        else:    
+            try:
+                price = Decimal(request.POST["bid_start"])
+            except (InvalidOperation, ValueError):
+                return render_create_listing(request, "Provide a valid price.")
+
+        if request.POST["image_url"] == "":
+            return render_create_listing(request, "Providing image url is mandatory.")
+        else:
+            image_url = request.POST["image_url"]
+
+        if request.POST["description"] == "":
+            return render_create_listing(request, "Providing description is mandatory.")
+        else:
+            description = request.POST["description"]
+        
+        user = request.user      
 
         new_listing = AuctionL(title=title, category=category, price=price, description=description, image_url=image_url, creator=user)
         new_listing.save()
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/create.html", {
-            "categories": Categories.objects.all()
+        return render_create_listing(request)
+
+def render_create_listing(request, message=None):
+    return render(request, "auctions/create.html", {
+            "categories": Categories.objects.all(),
+            "message": message
         })
 
 def listing_page(request, item_id):
