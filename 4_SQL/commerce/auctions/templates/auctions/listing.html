@@ -1,30 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    
-  
-    <h6> Test highest :{{ item.highest_bid.user }} </h6>
-
-
-    <h3>Comments</h3>
-    <form action="{% url 'listing_page' item.id %}" method="post">
-    <div>
-        {%csrf_token%}
-        {% if user.is_authenticated %}
-        <h6>Add new comment</h6>
-        <textarea name="comment" placeholder="Your comment goes here"></textarea>
-        <input type="submit" value="Submit">
-        {% endif %}
-    </div>
-    </form>
-    <div>
-        {% for comment in comments %}
-        <div>
-            <P>{{comment.user}}({{comment.created_at}})</P>
-            <p>{{comment.comment}}</p>
-        </div>    
-        {% endfor %}
-    </div>
+   
     <div class="container">
         <div class="row justify-content-center">
             <div class="col d-flex justify-content-center mb-4">
@@ -87,7 +64,7 @@
                                 <label for="new_bid" class="form-label" >Want to bid?</label>
                                 <div class="input-group">
                                     <span class="input-group-text" id="visible-addon">$</span>
-                                    <input type="number" id="new_bid" name="new_bid" class="form-control" placeholder="0.000" required>
+                                    <input type="number" id="new_bid" name="new_bid" class="form-control" placeholder="0.000" step="any" required>
                                 </div>
                             {% endif %}
                         </div>
@@ -111,4 +88,43 @@
     </div>
 </div>
     
+    {% if user.is_authenticated %}
+    <div class="container my-5">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-12 col-lg-10">
+                <form action="{% url 'listing_page' item.id %}" method="post">
+                    {%csrf_token%}
+                    <div class="text-center mb-2">
+                        <label for="comment" class="form-label" ><h3>Like it? Add comment</h3></label>
+                        <textarea name="comment" class="form-control"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>  
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% for comment in comments %}
+    <div class="container my-2">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-12 col-lg-10">
+                <div class="card text-body">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-1">{{comment.user}}</h6>
+                            <div class="d-flex align-items-center mb-3">
+                                <p class="mb-0">
+                                    {{comment.created_at}}
+                            </div>
+                            <p class="mb-0">
+                                {{comment.comment}}
+                            </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 {% endblock %}

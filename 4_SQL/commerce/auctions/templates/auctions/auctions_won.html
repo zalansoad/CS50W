@@ -1,12 +1,11 @@
 {% extends "auctions/layout.html" %}
- 
+
 {% block body %}
 <div class="container text-center">
-    <h2>{{category_titles}}</h2>
     <div class="row justify-content-center">
         {% if items %}
+            <h1 class="mb-5">Auctions you have won:</h1>
             {% for item in items %}
-                {% if item.status == 'active' %}
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4">
                         <div class="card" style="width: 18rem;">
                             <a href="{% url 'listing_page' item.id %}"><img src="{{ item.image_url }}" alt="{{ item.title }}" class="card-img-top"></a>
@@ -17,11 +16,11 @@
                             </div>
                         </div>
                     </div>
-                {% endif %}
             {% endfor %}
         {% else %}
-        <h1> No items under this category yet </h1>
+        <h1> You have not won any auctions yet </h1>
         {% endif %}
     </div>
 </div>
+
 {% endblock %}

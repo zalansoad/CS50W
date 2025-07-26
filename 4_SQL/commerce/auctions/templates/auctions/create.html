@@ -3,6 +3,7 @@
 {% block body %}
 
 <div class="container">
+    <h2 class="text-center mb-5">Create Listing</h2>
     {% if message %}
         <div class="alert alert-danger" role="alert">
             {{message}}
@@ -11,20 +12,17 @@
     <form action="{% url 'Create Listing' %}" method="post">
         {% csrf_token %}
         <div class="row mb-3">
-            
             <div class="col">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
             </div>
-            
             <div class="col">
                 <label for="bid_start" class="form-label" >Starting bid</label>
                 <div class="input-group">
                     <span class="input-group-text" id="visible-addon">$</span>
-                    <input type="number" id="bid_start" name="bid_start" class="form-control" placeholder="Starting bid" required>
+                    <input type="number" id="bid_start" name="bid_start" class="form-control" placeholder="Starting bid" step="any" required>
                 </div>
-            </div>
-            
+            </div> 
             <div class="col">
                 <label for="category" class="form-label" >Category</label>
                 <div class="form-floating">
@@ -37,7 +35,6 @@
                     <label for="category">Chose a category</label>
                 </div>
             </div>
-            
         </div>
         <div class="row mb-3">
             <label for="image_url" class="form-label">URL for image</label>

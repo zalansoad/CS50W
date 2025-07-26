@@ -119,7 +119,7 @@ def render_create_listing(request, message=None):
 def listing_page(request, item_id):
 
     item = AuctionL.objects.get(id=item_id)
-    comments = Comment.objects.filter(item=item)
+    comments = Comment.objects.filter(item=item).order_by('-created_at')
 
     if request.method == "POST":
         if not request.user.is_authenticated:
@@ -148,7 +148,10 @@ def listing_page(request, item_id):
             if item.status == AuctionL.Status.CLOSED:
                 return render_listing(request, item, comments, error_msg="The auction is closed already")
             item.status = AuctionL.Status.CLOSED
+            item.winner = request.user
             item.save()
+
+
             return render_listing(request, item, comments)
     else:
         return render_listing(request, item, comments)
@@ -197,9 +200,16 @@ def categories_list(request):
 def category(request, category_title):
         items = AuctionL.objects.filter(category__title=category_title)
         return render(request, "auctions/category.html", {
-            "items": items
-
+            "items": items,
+            "category_title": category_title
     })
+@login_required(login_url='/login')
+def auctions_won(request):
+    items = AuctionL.objects.filter(winner=request.user)
+    return render(request, "auctions/auctions_won.html", {
+            "items": items
+    })
+
 
 
 

@@ -9,3 +9,11 @@ input {
 label {
     display: block;
 }
+
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* ennyi sort jelenít meg maximum */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

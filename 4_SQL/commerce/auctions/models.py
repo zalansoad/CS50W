@@ -35,7 +35,8 @@ class AuctionL(models.Model):
 
     def highest_bid(self):
         return self.bids.order_by('-bid').first()
-    
+    winner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="winner")
+
 class Bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     bid = models.DecimalField(max_digits=20, decimal_places = 2)
