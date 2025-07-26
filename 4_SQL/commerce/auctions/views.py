@@ -148,7 +148,8 @@ def listing_page(request, item_id):
             if item.status == AuctionL.Status.CLOSED:
                 return render_listing(request, item, comments, error_msg="The auction is closed already")
             item.status = AuctionL.Status.CLOSED
-            item.winner = request.user
+            winner = item.highest_bid()
+            item.winner = winner.user
             item.save()
 
 
