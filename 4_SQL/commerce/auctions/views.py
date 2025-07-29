@@ -93,7 +93,7 @@ def create_listing(request):
                 return render_create_listing(request, "Provide a valid price.")
 
         if request.POST["image_url"] == "":
-            return render_create_listing(request, "Providing image url is mandatory.")
+            image_url = "https://icon-library.com/images/no-image-icon/no-image-icon-0.jpg"
         else:
             image_url = request.POST["image_url"]
 
@@ -199,7 +199,7 @@ def categories_list(request):
     })
 
 def category(request, category_title):
-        items = AuctionL.objects.filter(category__title=category_title)
+        items = AuctionL.objects.filter(category__title=category_title, status='active')
         return render(request, "auctions/category.html", {
             "items": items,
             "category_title": category_title

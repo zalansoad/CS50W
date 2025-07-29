@@ -25,29 +25,29 @@
                         {% endif %}
                     </div>
                         <h6 class="card-subtitle mb-2 text-body-secondary">{{ item.category }}</h6>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Listed by {{ item.creator }}</h6>
                         <p class="card-text">{{ item.description }}</p>
                     </div>
                 </div>
             </div>
-            <div class="col d-flex flex-column justify-content-start align-items-center">
+            <div class="col d-flex flex-column justify-content-center align-items-center">
                 {% if item.status == 'active' %}
-                    <div class="alert alert-success" role="alert">
+                    <div class="alert alert-success mb-5" role="alert">
                         The auction is ACTIVE
                     </div>
                 {% else %}
-                    <div class="alert alert-danger" role="alert">
+                    <div class="alert alert-danger mb-5" role="alert">
                         The auction is CLOSED
                     </div>
-                {% endif %}
-
-                <h6>Listed by: {{ item.creator }}</h6>
+                {% endif %}              
                 
                 {% if item.status == 'active' %}
                     <form action="{% url 'watchlist' item.id %}" method="post">
                         {%csrf_token%}
-                        <div class="text-center mb-2">
+                        <div class="text-center mb-5">
                             {% if user.is_authenticated %}
                                 {% if user in item.watchlist.all %}
+                                    <h2>The item is in your watchlist</h2>
                                     <button type="submit" class="btn btn-danger">Remove from Watchlist</button>
                                 {% else %}
                                     <h2>Want to keep track of the item?</h2>
@@ -62,14 +62,14 @@
                         <div class="text-center mb-2">
                             {% if user.is_authenticated %}
                                 <label for="new_bid" class="form-label" >Want to bid?</label>
-                                <div class="input-group">
+                                <div class="input-group mb-2">
                                     <span class="input-group-text" id="visible-addon">$</span>
                                     <input type="number" id="new_bid" name="new_bid" class="form-control" placeholder="0.00" step="any" required>
                                 </div>
+                                <div class="text-center mb-2">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
                             {% endif %}
-                        </div>
-                        <div class="text-center mb-2">
-                            <button type="submit" class="btn btn-success">Submit</button>
                         </div>
                     </form>
                     {% if error %}
