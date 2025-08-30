@@ -31,9 +31,60 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  // if inbox
+  display_emails(mailbox);
 }
 
-function send_email() {
+function display_emails(mailbox) {
+
+  fetch(`/emails/${mailbox}`)
+    .then(response => response.json())
+      .then(emails => {
+          // Print emails
+          console.log(emails);
+          if (emails.length === 0) {
+            return;
+          }
+          const element = document.createElement('table');
+          element.className = 'table';
+          const firstheader = mailbox === 'inbox' ? 'From' : 'To'
+          element.innerHTML = `
+            <thead>
+              <tr>
+                <th scope="col">${firstheader}</th>
+                <th scope="col">Subject</th>
+                <th scope="col">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          `;
+
+          
+          emails.forEach((email) => {
+            const tbody = element.querySelector("tbody");
+            const row = document.createElement('tr');
+            const emailtodisp = mailbox === 'inbox' ? email.sender : email.recipients[0]
+            row.innerHTML = `
+              <th scope="row">${emailtodisp}</th>
+              <td>${email.subject}</td>
+              <td>${email.timestamp}</td>
+            `;
+
+          row.addEventListener('click', function() {
+              console.log('This element has been clicked!')
+            });
+            tbody.appendChild(row);
+          });
+          document.querySelector('#emails-view').append(element);
+      });
+    }
+
+function send_email(event) {
+
+  event.preventDefault();
+
   let recipients = document.querySelector('#compose-recipients').value
   let subject = document.querySelector('#compose-subject').value
   let body = document.querySelector('#compose-body').value
@@ -44,10 +95,18 @@ function send_email() {
       subject: subject,
       body: body
     })
+  }) 
   .then(response => {
-    if (response.status === 400)
-
+    if (response.status === 400) {
+      return response.json().then(data => {
+        alert("Error: " + data.error);
+      });
+    }
+    if (response.status === 201) {
+      return response.json().then( data => {
+        alert("Message: " + data.message);
+        load_mailbox('inbox');
+      });
+    }
   })
-  });
-  return false;
 }
