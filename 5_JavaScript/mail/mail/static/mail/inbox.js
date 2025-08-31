@@ -16,6 +16,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#showemail').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -28,6 +29,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#showemail').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -65,6 +67,9 @@ function display_emails(mailbox) {
           emails.forEach((email) => {
             const tbody = element.querySelector("tbody");
             const row = document.createElement('tr');
+            if (email.read) {
+              row.className = "table-secondary" 
+            }
             const emailtodisp = mailbox === 'inbox' ? email.sender : email.recipients[0]
             row.innerHTML = `
               <th scope="row">${emailtodisp}</th>
@@ -73,12 +78,37 @@ function display_emails(mailbox) {
             `;
 
           row.addEventListener('click', function() {
-              console.log('This element has been clicked!')
+              console.log('This element has been clicked!');
+              show_email(email)
+
             });
             tbody.appendChild(row);
           });
           document.querySelector('#emails-view').append(element);
       });
+    }
+
+    function show_email(email) {
+      console.log(`${email.subject} has been clicked!`);
+      document.querySelector('#emails-view').style.display = 'none';
+      document.querySelector('#showemail').style.display = 'block';
+
+      const element = document.createElement('div');
+
+      element.innerHTML = `
+      <div>
+        <div><b>From:</b> ${email.sender}</div>
+        <div><b>To:</b> ${email.recipients}</div>
+        <div><b>Subject:</b> ${email.subject}</div>
+        <div><b>Timestamp:</b> ${email.timestamp}</div>
+      </div>
+      <hr>
+      <div style="white-space: pre-line;">
+        ${email.body}
+      </div>  
+      `;
+      
+      document.querySelector('#showemail').append(element);
     }
 
 function send_email(event) {
