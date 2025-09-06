@@ -70,17 +70,30 @@ function display_emails(mailbox) {
             if (email.read) {
               row.className = "table-secondary" 
             }
-            const emailtodisp = mailbox === 'inbox' ? email.sender : email.recipients[0]
+            let emailtodisp = mailbox == 'inbox' || 'archive' ? email.sender : email.recipients[0]
+            if (mailbox === 'sent'&& email.recipients.length > 1){
+              emailtodisp = `${emailtodisp} and more`
+            } 
+            let arch_button = mailbox ==='archive' ? 'Unarchive' : 'Archive'
             row.innerHTML = `
               <th scope="row">${emailtodisp}</th>
               <td>${email.subject}</td>
               <td>${email.timestamp}</td>
+              ${mailbox ==='sent' ? '' : `<td><button class="btn btn-sm btn-outline-primary arch-btn" id="arhive">${arch_button}</button></td>`}
             `;
 
-          row.addEventListener('click', function() {
+            row.addEventListener('click', function() {
               show_email(email);
               mark_read(email);
             });
+
+            const archBtn = row.querySelector(".arch-btn");
+            if (archBtn) {
+              archBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                mark_archive(email, mailbox);
+              });
+            }
             tbody.appendChild(row);
           });
           document.querySelector('#emails-view').append(element);
@@ -128,8 +141,8 @@ function reply(email) {
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = `${email.sender}${ addresslist ? ", " + addresslist : ''}`;
 
-  document.querySelector('#compose-subject').value = `${email.subject === "RE: " ? email.subject : "RE: " + email.subject}`
-  document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote: \n${email.body}`
+  document.querySelector('#compose-subject').value = `${email.subject.slice(0,4) === "RE: " ? email.subject : "RE: " + email.subject}`
+  document.querySelector('#compose-body').value = `\nOn ${email.timestamp} ${email.sender} wrote: \n${email.body}`
 }
 
 function mark_read(email) {
@@ -141,6 +154,20 @@ function mark_read(email) {
       read: true
   })
 })
+}
+
+function mark_archive(email, mailbox) {
+  id = email.id
+  let arch_status = !email.archived
+  fetch(`/emails/${id}`, {
+  method: 'PUT',
+  body: JSON.stringify({
+      archived: arch_status
+    })
+  })
+    .then (() => {
+    load_mailbox(mailbox);
+  });
 }
 
 
