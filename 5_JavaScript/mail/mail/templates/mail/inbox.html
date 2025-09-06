@@ -36,5 +36,6 @@
 {% endblock %}
 
 {% block script %}
+    <script> let logged_in_user = "{{ request.user.email }}" </script>
     <script src="{% static 'mail/inbox.js' %}"></script>
 {% endblock %}

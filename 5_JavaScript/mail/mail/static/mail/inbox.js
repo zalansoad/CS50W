@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
   document.querySelector('#compose-form').onsubmit = send_email;
-
+  
   // By default, load the inbox
   load_mailbox('inbox');
 });
@@ -78,9 +78,8 @@ function display_emails(mailbox) {
             `;
 
           row.addEventListener('click', function() {
-              console.log('This element has been clicked!');
-              show_email(email)
-
+              show_email(email);
+              mark_read(email);
             });
             tbody.appendChild(row);
           });
@@ -89,9 +88,9 @@ function display_emails(mailbox) {
     }
 
     function show_email(email) {
-      console.log(`${email.subject} has been clicked!`);
       document.querySelector('#emails-view').style.display = 'none';
       document.querySelector('#showemail').style.display = 'block';
+      document.querySelector('#showemail').innerHTML = '';
 
       const element = document.createElement('div');
 
@@ -102,6 +101,9 @@ function display_emails(mailbox) {
         <div><b>Subject:</b> ${email.subject}</div>
         <div><b>Timestamp:</b> ${email.timestamp}</div>
       </div>
+      <div>
+        <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
+      </div>
       <hr>
       <div style="white-space: pre-line;">
         ${email.body}
@@ -109,7 +111,38 @@ function display_emails(mailbox) {
       `;
       
       document.querySelector('#showemail').append(element);
+      document.querySelector('#reply').addEventListener('click', () => reply(email));
     }
+
+function reply(email) {
+
+  // Show compose view and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#showemail').style.display = 'none';
+  
+  console.log(logged_in_user)
+  let addresslist = email.recipients.filter(address => address != logged_in_user).join(", ");
+  
+
+  // Clear out composition fields
+  document.querySelector('#compose-recipients').value = `${email.sender}${ addresslist ? ", " + addresslist : ''}`;
+
+  document.querySelector('#compose-subject').value = `${email.subject === "RE: " ? email.subject : "RE: " + email.subject}`
+  document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote: \n${email.body}`
+}
+
+function mark_read(email) {
+  id = email.id
+
+  fetch(`/emails/${id}`, {
+  method: 'PUT',
+  body: JSON.stringify({
+      read: true
+  })
+})
+}
+
 
 function send_email(event) {
 
