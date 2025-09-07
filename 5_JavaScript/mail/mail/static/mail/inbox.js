@@ -91,7 +91,7 @@ function display_emails(mailbox) {
             if (archBtn) {
               archBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
-                mark_archive(email, mailbox);
+                mark_archive(email);
               });
             }
             tbody.appendChild(row);
@@ -156,7 +156,7 @@ function mark_read(email) {
 })
 }
 
-function mark_archive(email, mailbox) {
+function mark_archive(email) {
   id = email.id
   let arch_status = !email.archived
   fetch(`/emails/${id}`, {
@@ -166,7 +166,7 @@ function mark_archive(email, mailbox) {
     })
   })
     .then (() => {
-    load_mailbox(mailbox);
+    load_mailbox('inbox');
   });
 }
 
