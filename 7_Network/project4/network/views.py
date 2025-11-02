@@ -10,7 +10,7 @@ from .models import User, Posts, Follow
 
 def index(request):
     return render(request, "network/index.html",{
-        "posts": Posts.objects.all()
+        "posts": Posts.objects.all().order_by('-created_at')
     })
 
 
@@ -86,4 +86,31 @@ def new_post(request):
     
 
     return JsonResponse(latest_post.serialize(), status=201)
+
+@csrf_exempt
+def post_like(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
     
+    data = json.loads(request.body)
+    post_id = data.get("post_id")
+
+    user = request.user
+
+    liked_post = Posts.objects.get(id=post_id)
+    like_flag = None
+
+    if user in liked_post.likes.all():
+        liked_post.likes.remove(request.user)
+        like_flag = "dislike"
+    else:
+        liked_post.likes.add(request.user)
+        like_flag = "like"
+
+    liked_post.refresh_from_db()
+
+    data = liked_post.serialize()
+    data['like_type'] = like_flag
+
+    return JsonResponse(data, status=201)
+
