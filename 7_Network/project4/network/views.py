@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 import json
 from .models import User, Posts, Follow
@@ -52,6 +52,10 @@ def register(request):
                 "message": "Passwords must match."
             })
 
+        if User.objects.filter(username__iexact=username).exists():
+            return render(request, "network/register.html", {
+                "message": "Username already taken."
+            })
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
@@ -113,4 +117,90 @@ def post_like(request):
     data['like_type'] = like_flag
 
     return JsonResponse(data, status=201)
+
+@csrf_exempt
+def edit_post(request):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        post_id = data.get("post_id")
+        new_message = data.get("message")
+
+        post = Posts.objects.get(pk=post_id)
+
+        if post.creator != request.user:
+            return JsonResponse({"error": "Unauthorized"}, status=403)
+
+        post.message = new_message
+        post.save()
+
+        # Visszaküldjük a frissített adatot
+        return JsonResponse(post.serialize())
+
+    return JsonResponse({"error": "PUT request required."}, status=400)
+
+def profile(request, username):
+
+    if not User.objects.filter(username__iexact=username).exists():
+        return redirect("index")
+    else:
+        user = User.objects.get(username__iexact=username)
+
+        followers = user.followers_rel.count()  
+        following = user.following_rel.count() 
+        
+        posts = Posts.objects.filter(creator__username__iexact=username).order_by('-created_at')
+        own_profile = False
+        if request.user.username.casefold() == username.casefold():
+            own_profile = True
+
+        is_follower = False
+        is_follower = Follow.objects.filter(follower=request.user, following=user).exists()
+        
+        return render(request, "network/profile.html",{
+            "posts": posts,
+            "own_profile": own_profile,
+            "profile_name": username.capitalize(),
+            "follower": followers,
+            "following": following,
+            "follow_flag": is_follower, 
+        })
+
+@csrf_exempt
+def follow(request):
+    user = request.user
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        username_to_follow = data.get("Follow")
+        username_to_unfollow = data.get("UnFollow")
+
+        if username_to_follow:
+            target_user = User.objects.filter(username__iexact=username_to_follow).first()
+            if not target_user:
+                return JsonResponse({"error": "User not found."}, status=404)
+            if not Follow.objects.filter(follower=user, following=target_user).exists():
+                Follow.objects.create(follower=user, following=target_user)
+            
+            follower_count = Follow.objects.filter(following=target_user).count()
+            
+            return JsonResponse({
+                "follower_count": follower_count,
+            }, status=201)
+        elif username_to_unfollow:
+            target_user = User.objects.filter(username__iexact=username_to_unfollow).first()
+            if not target_user:
+                return JsonResponse({"error": "User not found."}, status=404)
+            
+            Follow.objects.filter(follower=user, following=target_user).delete()
+            
+            follower_count = Follow.objects.filter(following=target_user).count()
+            
+            return JsonResponse({
+                "follower_count": follower_count,
+            }, status=201)
+
+        else:
+            return JsonResponse({"error": "Invalid action"}, status=400)
+
+    return JsonResponse({"error": "PUT request required."}, status=400)
+
 

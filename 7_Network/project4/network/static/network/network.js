@@ -1,9 +1,115 @@
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('#create-post').onsubmit = create_post;
-  document.querySelectorAll('.fa.fa-heart-o').forEach(icon => {
+  const createPostForm = document.querySelector('#create-post');
+  if (createPostForm) {
+    document.querySelector('#create-post').onsubmit = create_post;
+  }
+
+  const likeIcons = document.querySelectorAll('.fa.fa-heart, .fa.fa-heart-o');
+  if (likeIcons.length > 0) {
+    likeIcons.forEach(icon => {
     icon.addEventListener('click', event => like(event, icon))
   });
+  }
+
+  const editButtons = document.querySelectorAll('.edit-clickable');
+  if (editButtons.length > 0) {
+  editButtons.forEach(editbutton => {
+    editbutton.addEventListener('click', event => editpost(event, editbutton))
+  });
+  }
+  const followingButton = document.querySelector('#following_button');
+
+  if (followingButton) {
+    followingButton.addEventListener('click', following_);
+  }
 });
+
+
+
+function editpost(event, editbutton){
+  event.preventDefault();
+  let card = editbutton.closest('.card');      
+  let postId = card.dataset.postid;
+  console.log('clicked' + postId);
+
+  let messageP = card.querySelector('p.mt-3');
+  let currentText = messageP.textContent.trim();
+
+  if (editbutton.textContent === "Save") {
+  
+  const newText = card.querySelector('textarea').value.trim();
+
+  fetch('/edit_post', {
+        method: 'PUT',
+        body: JSON.stringify({
+        post_id: postId,
+        message: newText
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+
+        messageP.innerHTML = result.message;
+        editbutton.textContent = "Edit";
+      })
+  } else {
+
+      messageP.innerHTML = `<textarea class="form-control edit-textarea" rows="3">${currentText}</textarea>`;
+      editbutton.textContent = "Save";
+  }
+}
+
+function following_(){
+  const btn = document.querySelector('#following_button');
+  const usernameToFollow = document.querySelector('#following_button').dataset.username;
+
+
+    if (btn.classList.contains('btn-primary')) {
+        fetch('/follow', {
+        method: 'PUT',
+        body: JSON.stringify({
+        Follow: usernameToFollow,
+        })
+      })
+      .then(response => {
+        if (response.status === 400) {
+          return response.json().then(data => {
+            alert("Error: " + data.error);
+          });
+        } else if (response.status === 201){
+          return response.json().then( data => {
+            document.querySelector('#follower_count').textContent = data.follower_count;
+          })
+        }
+      })
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-danger');
+        btn.textContent = "Unfollow";
+    }
+    else {
+
+      fetch('/follow', {
+        method: 'PUT',
+        body: JSON.stringify({
+        UnFollow: usernameToFollow,
+        })
+      })
+      .then(response => {
+        if (response.status === 400) {
+          return response.json().then(data => {
+            alert("Error: " + data.error);
+          });
+        } else if (response.status === 201){
+          return response.json().then( data => {
+            document.querySelector('#follower_count').textContent = data.follower_count;
+          })
+        }
+      })
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-primary');
+        btn.textContent = "Follow";
+    }
+}
 
 function like(event, icon) {
   event.preventDefault();
@@ -40,9 +146,7 @@ function like(event, icon) {
     } else {
       alert("Error: returned status not defined");
     }
-   
   })
-
 }
 
 function create_post(event) {
@@ -76,7 +180,7 @@ function create_post(event) {
                       <div class="card-body">
                         <div class="d-flex flex-start align-items-center">
                             <div>
-                                <h6 class="fw-bold text-primary mb-1">${data.creator}</h6>
+                                <a href="/profile/${data.creator}" style="text-decoration: none;"><h6 class="fw-bold text-primary mb-1">${data.creator}</h6></a>
                                 <p class="text-muted small mb-0">
                                 ${data.created_at}
                                 </p>
