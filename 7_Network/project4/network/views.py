@@ -4,14 +4,22 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.core.paginator import Paginator
 import json
 from .models import User, Posts, Follow
 
 
 def index(request):
-    return render(request, "network/index.html",{
-        "posts": Posts.objects.all().order_by('-created_at')
+    all_posts = Posts.objects.all().order_by('-created_at')
+    paginator = Paginator(all_posts, 10)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number) 
+
+    return render(request, "network/index.html", {
+        "posts": page_obj,
     })
+
 
 def following_page(request):
 
@@ -19,9 +27,15 @@ def following_page(request):
 
     posts = Posts.objects.filter(creator__in=followed_users).order_by("-created_at")
 
-    return render(request, "network/following.html",{
-        "posts": posts
+    paginator = Paginator(posts, 10)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "network/index.html", {
+        "posts": page_obj,
     })
+
 
 
 
@@ -160,6 +174,11 @@ def profile(request, username):
         following = user.following_rel.count() 
         
         posts = Posts.objects.filter(creator__username__iexact=username).order_by('-created_at')
+        paginator = Paginator(posts, 10)
+
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
         own_profile = False
         if request.user.username.casefold() == username.casefold():
             own_profile = True
@@ -171,7 +190,7 @@ def profile(request, username):
             is_follower = False
         
         return render(request, "network/profile.html",{
-            "posts": posts,
+            "posts": page_obj,
             "own_profile": own_profile,
             "profile_name": username.capitalize(),
             "follower": followers,

@@ -192,7 +192,7 @@ function create_post(event) {
                         <div class="d-flex justify-content-between align-items-center small">
                             <i class="fa fa-heart-o" aria-hidden="true"> ${data.likes}</i>
                             <a href="#!" class="text-decoration-none">
-                                <p class="mb-0">Edit</p>
+                                <p class="mb-0 edit-clickable">Edit</p>
                             </a>
                         </div>
                       </div>
@@ -206,6 +206,9 @@ function create_post(event) {
 
         let newIcon = element.querySelector('.fa.fa-heart-o');
         newIcon.addEventListener('click', event => like(event, newIcon));
+
+        let editbutton = element.querySelector('.edit-clickable');
+        editbutton.addEventListener('click', event => editpost(event, editbutton));
 
         alert("New post created successfully");
       });

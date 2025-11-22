@@ -64,4 +64,47 @@
         </div>
     {% endfor %}
     </div>
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {% if posts.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ posts.previous_page_number }}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="visually-hidden">Previous</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="visually-hidden">Previous</span>
+        </span>
+      </li>
+    {% endif %}
+
+    <li class="page-item disabled">
+      <span class="page-link">
+        Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+      </span>
+    </li>
+
+    {% if posts.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ posts.next_page_number }}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="visually-hidden">Next</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="visually-hidden">Next</span>
+        </span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+
 {% endblock %}
