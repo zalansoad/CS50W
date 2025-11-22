@@ -12,7 +12,6 @@
                 <div class="card-body">
                     <h5 class="card-title mb-3 text-center">{{ profile_name }}</h5>
 
-                    <!-- 🔹 Két oszlop, két sor -->
                     <div class="row text-center">
                         <div class="col-6">
                             <p class="mb-1 fw-semibold">Followers</p>
@@ -23,14 +22,16 @@
                             <p class="fs-5 mb-0" id="following_count">{{following}}</p>
                         </div>
                     </div>
-                    {% if not own_profile %}
-                    <div class="d-flex justify-content-center mt-3">
-                        {% if not follow_flag %}
-                        <button type="button" id="following_button" data-username="{{ profile_name }}" class="btn btn-primary">Follow</button>
-                        {% else %}
-                        <button type="button" id="following_button" data-username="{{ profile_name }}" class="btn btn-danger">UnFollow</button>
+                    {% if user.is_authenticated %}
+                        {% if not own_profile %}
+                        <div class="d-flex justify-content-center mt-3">
+                            {% if not follow_flag %}
+                            <button type="button" id="following_button" data-username="{{ profile_name }}" class="btn btn-primary">Follow</button>
+                            {% else %}
+                            <button type="button" id="following_button" data-username="{{ profile_name }}" class="btn btn-danger">UnFollow</button>
+                            {% endif %}
+                        </div>
                         {% endif %}
-                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -38,18 +39,27 @@
     </div>
 </div>
 
-     {% if own_profile %}
-    <div class="container py-1">
-        <form id="create-post">
-            {% csrf_token %}
-            <div class="p-5">
-                <label for="message" class="form-label">New Post</label>
-                <textarea class="form-control mb-3" id="message" rows="3"></textarea>
-                <button type="submit" class="btn btn-primary">Post</button>
+    {% if own_profile %}
+        <div class="container py-3">
+            <div class="card shadow-sm rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3 text-primary fw-bold">
+                        <i class="bi bi-pencil-square me-2"></i> New Post
+                    </h5>
+
+                    <form id="create-post">
+                        {% csrf_token %}
+                        <textarea class="form-control mb-3" id="message" rows="3"
+                            placeholder="What’s on your mind?"></textarea>
+                        <button type="submit" class="btn btn-primary px-4">
+                            Post
+                        </button>
+                    </form>
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
     {% endif %}
+    <hr>
     <div id="posts-container">
     {% for post in posts %}
         <div class="container py-1">

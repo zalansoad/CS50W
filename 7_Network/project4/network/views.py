@@ -13,6 +13,17 @@ def index(request):
         "posts": Posts.objects.all().order_by('-created_at')
     })
 
+def following_page(request):
+
+    followed_users = Follow.objects.filter(follower=request.user).values_list("following", flat=True)
+
+    posts = Posts.objects.filter(creator__in=followed_users).order_by("-created_at")
+
+    return render(request, "network/following.html",{
+        "posts": posts
+    })
+
+
 
 def login_view(request):
     if request.method == "POST":
@@ -154,7 +165,10 @@ def profile(request, username):
             own_profile = True
 
         is_follower = False
-        is_follower = Follow.objects.filter(follower=request.user, following=user).exists()
+        if request.user.is_authenticated:
+            is_follower = Follow.objects.filter(follower=request.user, following=user).exists()
+        else:
+            is_follower = False
         
         return render(request, "network/profile.html",{
             "posts": posts,
