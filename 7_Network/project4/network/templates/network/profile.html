@@ -60,6 +60,9 @@
         </div>
     {% endif %}
     <hr>
+    <div id="pagination-info" 
+        data-current-page="{{ posts.number }}">
+    </div>
     <div id="posts-container">
     {% for post in posts %}
         <div class="container py-1">

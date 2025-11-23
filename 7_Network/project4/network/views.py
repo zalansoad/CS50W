@@ -8,7 +8,6 @@ from django.core.paginator import Paginator
 import json
 from .models import User, Posts, Follow
 
-
 def index(request):
     all_posts = Posts.objects.all().order_by('-created_at')
     paginator = Paginator(all_posts, 10)
@@ -19,7 +18,6 @@ def index(request):
     return render(request, "network/index.html", {
         "posts": page_obj,
     })
-
 
 def following_page(request):
 
@@ -32,12 +30,9 @@ def following_page(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, "network/index.html", {
+    return render(request, "network/following.html", {
         "posts": page_obj,
     })
-
-
-
 
 def login_view(request):
     if request.method == "POST":
@@ -62,7 +57,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -210,6 +204,8 @@ def follow(request):
             target_user = User.objects.filter(username__iexact=username_to_follow).first()
             if not target_user:
                 return JsonResponse({"error": "User not found."}, status=404)
+            if target_user == user:
+                return JsonResponse({"error": "You cannot follow yourself."}, status=404)
             if not Follow.objects.filter(follower=user, following=target_user).exists():
                 Follow.objects.create(follower=user, following=target_user)
             

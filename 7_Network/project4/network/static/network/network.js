@@ -171,6 +171,11 @@ function create_post(event) {
     if (response.status === 201) {
       return response.json().then( data => {
 
+        const currentPage = Number(
+          document.querySelector('#pagination-info').dataset.currentPage
+      );
+
+        if (currentPage === 1) {
         const element = document.createElement('div');
         element.innerHTML = `
         <div class="container py-1">
@@ -202,14 +207,14 @@ function create_post(event) {
         </div>
         `
         document.querySelector('#posts-container').prepend(element);
-        document.querySelector('#message').value = "";
 
         let newIcon = element.querySelector('.fa.fa-heart-o');
         newIcon.addEventListener('click', event => like(event, newIcon));
 
         let editbutton = element.querySelector('.edit-clickable');
         editbutton.addEventListener('click', event => editpost(event, editbutton));
-
+        }
+        document.querySelector('#message').value = "";
         alert("New post created successfully");
       });
     }
